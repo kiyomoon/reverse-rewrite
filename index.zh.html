@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>反向改写</title>
+    <meta
+      name="description"
+      content="反向改写：一组把 Rust 代码反向转写回现代 C++ 的实验记录，以及围绕表达力、拒绝力和验证边界的几篇文章。"
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="assets/site.css">
+    <link rel="stylesheet" href="assets/site-zh.css">
+  </head>
+  <body class="zh-page index-page">
+    <div class="site-shell">
+      <header class="hero">
+        <div class="hero-bar">
+          <div>
+            <p class="eyebrow">归档 / 反向转写实验</p>
+          </div>
+          <div class="hero-links">
+            <a class="lang-badge" href="index.html">English</a>
+          </div>
+        </div>
+        <h1>反向改写</h1>
+        <p class="lede">
+          这里放的是一组已经完成的实验：把四个 Rust 项目反向转写回地道的现代 C++，再拿行为测试、代码结构和转写笔记去看，最后留下来的到底是什么。
+        </p>
+        <p class="quiet-note">
+          这不是一个正在开发的软件项目，更像是一份整理过的档案。真正值得读的是那几篇文章；旁边那些代码目录，只是给愿意继续翻的人做参考。
+        </p>
+        <p class="quiet-note">
+          如果只想用一句最直白的话来描述它：这是一组“把 Rust 转回现代 C++”的实验笔记。
+        </p>
+      </header>
+
+      <main class="content-grid">
+        <section class="panel">
+          <div class="section-heading">
+            <p class="section-label">阅读</p>
+            <h2>中文文章</h2>
+          </div>
+          <ol class="article-list">
+            <li>
+              <a class="article-card" href="articles/01-methodology.zh.html">
+                <span class="article-number">01</span>
+                <span class="article-copy">
+                  <strong>方法与第一例子 / hexyl</strong>
+                  <span>从最基础的转写规则开始，看哪些东西能自然映射，哪些保证会在转写后消失。</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="article-card" href="articles/02-coreutils.zh.html">
+                <span class="article-number">02</span>
+                <span class="article-copy">
+                  <strong>完整绕一圈 / uutils-coreutils</strong>
+                  <span>把 GNU C、Rust 和转回来的 C++ 摆在一起，看算法、结构和工具链各自改变了什么。</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="article-card" href="articles/03-concurrency.zh.html">
+                <span class="article-number">03</span>
+                <span class="article-copy">
+                  <strong>真正难的地方 / mini-redis</strong>
+                  <span>第一处明显不能只靠机械替换解决的问题：`tokio::select!` 和并发组合。</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="article-card" href="articles/04-fish-shell.zh.html">
+                <span class="article-number">04</span>
+                <span class="article-copy">
+                  <strong>走一圈再回来 / fish shell</strong>
+                  <span>把真实发生过 C++ → Rust 重写的项目，再从 Rust 转回 C++，看哪些改进会留下来。</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="article-card" href="articles/05-theory.zh.html">
+                <span class="article-number">05</span>
+                <span class="article-copy">
+                  <strong>表达力、拒绝力与验证边界</strong>
+                  <span>把四次实验压在一起，重新整理“能写什么”和“会拒绝什么”之间的分界。</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="article-card" href="articles/06-afterword.zh.html">
+                <span class="article-number">06</span>
+                <span class="article-copy">
+                  <strong>后记</strong>
+                  <span>这组实验是怎么成形的，以及 AI 让哪些原本太贵的问题突然变得值得去试。</span>
+                </span>
+              </a>
+            </li>
+          </ol>
+        </section>
+
+        <section class="panel panel-compact">
+          <div class="section-heading">
+            <p class="section-label">补充</p>
+            <h2>仓库里还留了什么</h2>
+          </div>
+          <ul class="reference-list">
+            <li><a href="01-hexyl/">01-hexyl</a> —— 第一组完整转写材料</li>
+            <li><a href="02-coreutils/">02-coreutils</a> —— 三个 coreutils 工具的对照</li>
+            <li><a href="03-mini-redis/">03-mini-redis</a> —— 异步与并发案例</li>
+            <li><a href="04-fish-shell/">04-fish-shell</a> —— 往返对照材料</li>
+            <li><a href="README.md">README</a> —— 英文仓库说明和复现实验入口</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

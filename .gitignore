@@ -1,0 +1,31 @@
+# Build artifacts
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+# IDE / AI tooling
+.idea/
+.vscode/
+.claude/
+chat.md
+NEXT_CPP_PROJECT_CONTEXT.md
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Rust build (if building original for comparison)
+target/
+
+# FetchContent downloads
+_deps/
+
+# Catch2 generated
+CTestTestfile.cmake

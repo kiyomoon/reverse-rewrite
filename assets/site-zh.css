@@ -1,0 +1,100 @@
+body.zh-page {
+  background:
+    radial-gradient(circle at top right, rgba(120, 96, 58, 0.14), transparent 24rem),
+    linear-gradient(180deg, #f2eee6 0%, #f8f4ee 45%, #f4efe8 100%);
+}
+
+.zh-page {
+  --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+}
+
+.zh-page .hero {
+  padding: 3rem 3.25rem 3.1rem;
+}
+
+.zh-page .hero h1 {
+  letter-spacing: -0.06em;
+}
+
+.hero-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.lang-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(138, 96, 66, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.zh-page .lede {
+  font-size: 1.1rem;
+  line-height: 1.9;
+}
+
+.zh-page .quiet-note {
+  line-height: 1.85;
+}
+
+.zh-page .article-copy span:last-child,
+.zh-page .reference-list li {
+  line-height: 1.75;
+}
+
+.zh-page .article-body {
+  max-width: 800px;
+  font-size: 1.03rem;
+  line-height: 1.95;
+}
+
+.zh-page .article-body h1 {
+  letter-spacing: -0.05em;
+}
+
+.zh-page .article-body h2,
+.zh-page .article-body h3 {
+  letter-spacing: -0.04em;
+}
+
+.zh-page .article-body p,
+.zh-page .article-body li,
+.zh-page .article-body blockquote {
+  text-wrap: pretty;
+}
+
+.zh-page .topbar {
+  background: rgba(251, 248, 243, 0.88);
+}
+
+.zh-page .topbar-links {
+  gap: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .hero-bar {
+    flex-direction: column;
+    margin-bottom: 0.9rem;
+  }
+
+  .zh-page .hero {
+    padding: 1.45rem;
+  }
+}
