@@ -252,6 +252,8 @@ But one construct sits at the boundary: Rust's `Send` trait. It is the linchpin 
 
 C++26's static reflection (P2996) changes this — partially.
 
+Older drafts of this appendix treated that as a future-facing observation. As of **April 5, 2026**, I am comfortable making a stronger but still bounded statement: in a local GCC 16 trunk build (`g++ 16.0.1 20260324 (experimental)` with `-freflection`), the basic mechanism is already testable. A small smoke test used for this note is included in the repository as [`gcc-static-reflection.cpp`](../gcc-static-reflection.cpp).
+
 ## What `Send` Actually Does
 
 In Rust, `Send` is a marker trait indicating that a value can be safely transferred to another thread. The compiler derives it automatically: if every field of your struct is `Send`, your struct is `Send`. If any field is not (e.g., `Rc<T>`, a non-atomic reference count), the whole struct is not, and any attempt to pass it to `thread::spawn` fails at compile time.
@@ -287,87 +289,60 @@ concept Sendable = /* what goes here? */;
 
 This is the gap. The concept exists as a constraint mechanism, but without the ability to inspect a type's members, every type must be manually tagged. That doesn't scale, and in practice nobody does it.
 
-## C++26 Static Reflection Closes the Derivation Gap
+## GCC 16 Makes The Derivation Gap Testable
 
-P2996 gives C++ compile-time access to a type's structure. With it, we can write automatic `Send` derivation:
+P2996 gives C++ compile-time access to a type's structure. In the current GCC 16 experimental implementation, `std::define_static_array` is the practical way to materialize reflected members for iteration. With that, we can already write a minimal `Send`-style derivation:
 
 ```cpp
-#include <experimental/meta>
+#include <meta>
 #include <type_traits>
-#include <memory>
-#include <string>
-#include <vector>
 
-// Base case: primitives and standard safe types are Sendable.
-template <typename T>
-constexpr bool is_sendable_v = std::is_arithmetic_v<T>;
+struct LocalRcInt {};
 
-template <>
-constexpr bool is_sendable_v<std::string> = true;
+consteval bool is_sendable_info(std::meta::info r) {
+    return r == ^^int || r == ^^bool;
+}
 
 template <typename T>
-constexpr bool is_sendable_v<std::vector<T>> = is_sendable_v<T>;
-
-template <typename T>
-constexpr bool is_sendable_v<std::unique_ptr<T>> = is_sendable_v<T>;
-
-// shared_ptr is Sendable (atomic refcount), unlike Rust's Rc.
-template <typename T>
-constexpr bool is_sendable_v<std::shared_ptr<T>> = is_sendable_v<T>;
-
-// Recursive derivation: a struct is Sendable if all its fields are.
-template <typename T>
-    requires std::is_class_v<T>
 consteval bool derive_sendable() {
+    if constexpr (!std::is_class_v<T>)
+        return is_sendable_info(^^T);
+
+    constexpr auto ctx = std::meta::access_context::current();
     bool result = true;
-    [:expand(std::meta::nonstatic_data_members_of(^T)):] >> [&]<auto member> {
-        using FieldType = typename[:std::meta::type_of(member):];
-        if (!is_sendable_v<FieldType>)
+
+    template for (constexpr auto m :
+        std::define_static_array(std::meta::nonstatic_data_members_of(^^T, ctx))) {
+        if constexpr (std::meta::type_of(m) == ^^LocalRcInt)
             result = false;
-    };
+        else if constexpr (!is_sendable_info(std::meta::type_of(m)))
+            result = false;
+    }
     return result;
 }
 
-// Non-atomic reference count — NOT Sendable (analogous to Rust's Rc).
 template <typename T>
-struct LocalRc { /* non-atomic refcount */ };
+concept Sendable = derive_sendable<T>();
 
-template <typename T>
-constexpr bool is_sendable_v<LocalRc<T>> = false;  // explicit opt-out
-
-// The constraint.
-template <typename T>
-concept Sendable = is_sendable_v<T> || (std::is_class_v<T> && derive_sendable<T>());
-
-// A spawn function that enforces the constraint.
-template <Sendable T>
-void safe_spawn(std::function<void(T)> fn, T value);
-```
-
-Now:
-
-```cpp
-struct GameState {
-    uint64_t score;
-    std::string name;
-    std::vector<uint8_t> data;
+struct GoodState {
+    int score;
+    bool live;
 };
-// derive_sendable<GameState>() == true. All fields are Sendable.
 
 struct BadState {
-    LocalRc<std::unordered_map<std::string, std::string>> cache;
+    int score;
+    LocalRcInt cache;
 };
-// derive_sendable<BadState>() == false. LocalRc is not Sendable.
 
-safe_spawn(process, GameState{});   // ✓ compiles
-safe_spawn(process, BadState{});    // ✗ compile error
+static_assert(derive_sendable<GoodState>());
+static_assert(!derive_sendable<BadState>());
 ```
 
-This is structurally equivalent to what Rust's compiler does: recursive field inspection, automatic derivation, compile-time rejection.
+That example is intentionally narrow: plain field types, one explicit non-sendable marker, no attempt to model the full standard library. A richer library-grade formulation is still clearly rough at the edges in today's experimental implementation. But the important point changed: this is no longer purely a hypothetical future sketch. The recursive field-inspection mechanism is real enough to compile and test today.
 
 ## The Gap That Remains
 
-The derivation works. The constraint works. But there is nothing forcing anyone to use `safe_spawn`. The standard `std::thread` constructor accepts any callable — no `Sendable` check, no compiler error:
+The derivation works. The constraint works. But there is still nothing forcing anyone to use a `Sendable`-gated API. The standard `std::thread` constructor accepts any callable — no `Sendable` check, no compiler error:
 
 ```cpp
 BadState bad;
@@ -382,9 +357,9 @@ In C++, the gate is optional. You can build it, and your team can agree to use i
 
 This is the expressiveness/rejection distinction in miniature:
 
-- **Expressiveness**: C++26 can *express* the concept of `Send` — automatic derivation, recursive field checking, compile-time constraint. The mechanism is there. ✓
-- **Rejection**: C++ cannot *reject* code that bypasses the check. The standard threading API does not require `Sendable`, and C++ has no way to retroactively add constraints to `std::thread`. ✗
+- **Expressiveness**: in a current GCC 16 experimental toolchain, C++ can already *express* a meaningful subset of `Send`-style automatic derivation and compile-time gating. ✓
+- **Rejection**: C++ still cannot *mandate* that gate across the standard threading model. The check remains voluntary rather than built into the language/runtime boundary. ✗
 
-Rust's advantage is not that it *can* check `Send` — with reflection, C++ can too. The advantage is that it *always* checks. The check is not a library convention; it is a language invariant. You cannot opt out without writing `unsafe`.
+Rust's advantage is not merely that it *can* check `Send`. It is that the check is part of the language's default contract. In C++, even with reflection, the check is still something a library or team can build and adopt. In Rust, it is the path of least resistance and the path enforced by the standard API surface.
 
 This is, in a single example, a compact version of the pattern that kept reappearing in the series. The languages looked much closer in what they could express than in what they could reject. And that difference lived in the compilation pipeline — in whether the verification was mandatory or voluntary.

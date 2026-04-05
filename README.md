@@ -34,6 +34,7 @@ Completed and archived as a self-contained project.
   - [`04-fish-shell.md`](articles/04-fish-shell.md)
   - [`05-theory.md`](articles/05-theory.md)
   - [`06-afterword.md`](articles/06-afterword.md)
+- [`gcc-static-reflection.cpp`](gcc-static-reflection.cpp) contains the GCC 16 experimental reflection smoke test referenced in the Part 5 appendix.
 - [`01-hexyl/`](01-hexyl/) contains the first full transpilation, notes, and C++ test harness.
 - [`02-coreutils/`](02-coreutils/) contains three GNU/uutils/C++ comparisons: `echo`, `cat`, and `tr`.
 - [`03-mini-redis/`](03-mini-redis/) contains the async/concurrency case study and C++ behavioral test script.
